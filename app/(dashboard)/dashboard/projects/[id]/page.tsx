@@ -26,17 +26,30 @@ export default function ProjectDetailsPage() {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // RTK Query hooks
   const { data: project, isLoading, refetch } = useGetProjectByIdQuery(id);
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
 
+  // আপডেট লজিক
   const handleUpdate = async (data: any) => {
+    // ব্যাকএন্ডের জন্য ডেটা ফরম্যাটিং
+    const payload = {
+      name: data.name,
+      description: data.description,
+      budget: Number(data.budget),
+      status: data.status,
+      deadline: new Date(data.deadline).toISOString(),
+      milestones: data.milestones,
+    };
+
     try {
-      await updateProject({ id, ...data }).unwrap();
-      toast.success("Project updated successfully!");
+      await updateProject({ id, ...payload }).unwrap();
+      toast.success("Project baseline updated successfully!");
       setIsEditModalOpen(false);
       refetch();
-    } catch {
-      toast.error("Failed to update project.");
+    } catch (err: any) {
+      console.error("Update failed:", err);
+      toast.error(err?.data?.message || "Failed to update project.");
     }
   };
 
@@ -49,12 +62,12 @@ export default function ProjectDetailsPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
-      {/* Header Navigation */}
+      {/* Navigation */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-slate-500 hover:text-brand-royal-blue transition-colors group"
+        className="flex items-center gap-2 text-slate-500 hover:text-brand-royal-blue transition-colors"
       >
-        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <ArrowLeft className="w-4 h-4" />
         <span className="text-sm font-semibold">Back to Matrix</span>
       </button>
 
@@ -80,7 +93,7 @@ export default function ProjectDetailsPage() {
           {project?.description}
         </p>
 
-        {/* Dynamic KPI Row */}
+        {/* KPI Section */}
         <div className="grid grid-cols-4 gap-6 mt-8 pt-8 border-t border-slate-50">
           {[
             {
@@ -92,11 +105,7 @@ export default function ProjectDetailsPage() {
             {
               label: "Deadline",
               value: project?.deadline
-                ? new Date(project.deadline).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
+                ? new Date(project.deadline).toLocaleDateString()
                 : "N/A",
               icon: Calendar,
               color: "text-amber-500",
@@ -116,7 +125,8 @@ export default function ProjectDetailsPage() {
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-4">
               <div className={`p-3 rounded-2xl bg-slate-50 ${item.color}`}>
-                <item.icon className="w-6 h-6" />
+                {" "}
+                <item.icon className="w-6 h-6" />{" "}
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -129,7 +139,7 @@ export default function ProjectDetailsPage() {
         </div>
       </div>
 
-      {/* Main Content Layout */}
+      {/* Main Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
           <h3 className="font-bold text-lg mb-6 text-slate-900">
@@ -137,12 +147,11 @@ export default function ProjectDetailsPage() {
           </h3>
           <MilestoneList milestones={project?.milestones || []} />
         </div>
-
-        <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-xl flex flex-col justify-between">
+        <div className="bg-slate-900 text-white rounded-3xl p-8 flex flex-col justify-between">
           <div>
             <h3 className="font-bold text-lg mb-2">Manager Controls</h3>
             <p className="text-slate-400 text-sm mb-6">
-              Modify project constraints or archive this asset.
+              Modify project constraints.
             </p>
           </div>
           <button
