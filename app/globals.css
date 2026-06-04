@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 🎨 Tailwind v4 Custom Theme Configuration */
+@theme {
+  --color-brand-dark-navy: #121358;
+  --color-brand-royal-blue: #232f72;
+  --color-brand-steel-blue: #2f578a;
+  --color-brand-teal-aqua: #36ada3;
+
+  /* ড্যাশবোর্ডের অন্যান্য ইউটিলিটি কালার */
+  --color-status-todo: #64748b;
+  --color-status-progress: #3b82f6;
+  --color-status-completed: #10b981;
+  --color-priority-high: #ef4444;
+  --color-priority-medium: #f59e0b;
+  --color-priority-low: #10b981;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* 🏢 Base/Global Styles */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+  }
+
+  /* ডার্ক মোড অ্যাক্টিভ থাকলে (Next.js থিম টগল) */
+  .dark {
+    --background: #0b0c22; 
+    --foreground: #f8fafc;
+    --card-bg: #121358;
+    --border-color: #2f578a;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family:
+      ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji";
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 🧩 Reusable UI Utilities/Components */
+@layer components {
+  /* গ্লোবাল কাস্টম স্ক্রলবার (ড্যাশবোর্ড ফিচারের জন্য) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #36ada3;
+  }
+
+  .dashboard-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
 }
