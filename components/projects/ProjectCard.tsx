@@ -13,9 +13,10 @@ interface ProjectCardProps {
     progress: number;
     status: string;
   };
+  onDelete?: () => void;
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
   const router = useRouter();
 
   return (

@@ -35,6 +35,14 @@ export const dashboardApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `/projects/${id}`, method: "DELETE" }),
       invalidatesTags: ["Project"],
     }),
+    getDashboardInsights: builder.query<any, void>({
+      query: () => "/dashboard/insights",
+      providesTags: ["Dashboard"],
+    }),
+    getRecentActivities: builder.query<any[], void>({
+      query: () => "/dashboard/recent-activities",
+      providesTags: ["Dashboard"],
+    }),
   }),
 });
 
@@ -44,4 +52,7 @@ export const {
   useCreateProjectMutation,
   useUpdateProjectMutation,
   useDeleteProjectMutation,
+  useGetDashboardInsightsQuery,
+  useGetRecentActivitiesQuery,
 } = dashboardApi;
+

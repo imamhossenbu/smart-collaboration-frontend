@@ -24,7 +24,7 @@ const signupSchema = z.object({
     .string()
     .min(6, { message: "Password must be at least 6 characters long." }),
   role: z.enum(["TEAM_MEMBER", "PROJECT_MANAGER"], {
-    errorMap: () => ({ message: "Please select a valid workspace role." }),
+    message: "Please select a valid workspace role.",
   }),
 });
 

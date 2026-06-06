@@ -2,6 +2,7 @@ import { baseApi } from "./baseApi";
 
 export const taskApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // সব টাস্ক আনা
     getTasks: builder.query({
       query: (params) => ({
         url: "/tasks",
@@ -10,6 +11,16 @@ export const taskApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Task"],
     }),
+    // নতুন টাস্ক তৈরি
+    createTask: builder.mutation({
+      query: (body) => ({
+        url: "/tasks",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Task", "Dashboard"],
+    }),
+    // টাস্কের স্ট্যাটাস আপডেট
     updateTaskStatus: builder.mutation({
       query: ({ id, status }) => ({
         url: `/tasks/${id}/status`,
@@ -21,4 +32,8 @@ export const taskApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetTasksQuery, useUpdateTaskStatusMutation } = taskApi;
+export const {
+  useGetTasksQuery,
+  useCreateTaskMutation,
+  useUpdateTaskStatusMutation,
+} = taskApi;

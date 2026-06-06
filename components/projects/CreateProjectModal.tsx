@@ -9,17 +9,14 @@ import { X, Loader2, FolderKanban, Plus, Trash2 } from "lucide-react";
 const projectSchema = z.object({
   name: z.string().min(3, "Project name must be at least 3 characters long"),
   description: z.string().min(10, "Please provide a more descriptive summary"),
-  budget: z.coerce.number().min(1, "Budget must be a positive number"),
+  budget: z.number().min(1, "Budget must be a positive number"),
   deadline: z.string().min(1, "Please select a valid completion date"),
   // 🆕 মাইলস্টোন স্কিমা
-  milestones: z
-    .array(
-      z.object({
-        title: z.string().min(2, "Milestone title required"),
-      }),
-    )
-    .optional()
-    .default([]),
+  milestones: z.array(
+    z.object({
+      title: z.string().min(2, "Milestone title required"),
+    }),
+  ),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -134,7 +131,7 @@ export default function CreateProjectModal({
               </label>
               <input
                 type="number"
-                {...register("budget")}
+                {...register("budget", { valueAsNumber: true })}
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-brand-royal-blue transition-all"
               />
               {errors.budget && (
