@@ -29,6 +29,15 @@ export const taskApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Task", "Dashboard"],
     }),
+
+    updateProgress: builder.mutation({
+      query: ({ id, progress }) => ({
+        url: `/tasks/${id}/progress`,
+        method: "PATCH",
+        body: { progress },
+      }),
+      invalidatesTags: ["Task", "Dashboard"],
+    }),
   }),
 });
 
@@ -36,4 +45,5 @@ export const {
   useGetTasksQuery,
   useCreateTaskMutation,
   useUpdateTaskStatusMutation,
+  useUpdateProgressMutation,
 } = taskApi;
