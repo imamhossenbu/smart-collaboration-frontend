@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import {
   ArrowLeft,
   Calendar,
@@ -12,6 +11,8 @@ import {
   BarChart3,
   RefreshCw,
   Edit3,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 
 import {
@@ -26,25 +27,21 @@ export default function ProjectDetailsPage() {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // RTK Query hooks
   const { data: project, isLoading, refetch } = useGetProjectByIdQuery(id);
   const [updateProject, { isLoading: isUpdating }] = useUpdateProjectMutation();
 
-  // আপডেট লজিক
   const handleUpdate = async (data: any) => {
-    // ব্যাকএন্ডের জন্য ডেটা ফরম্যাটিং
+    // নিশ্চিত করুন যে ডেডলাইনটি ISO ফরম্যাটে কনভার্ট হচ্ছে
     const payload = {
-      name: data.name,
-      description: data.description,
+      ...data,
       budget: Number(data.budget),
-      status: data.status,
+      // এই লাইনটিই আসল সমাধান:
       deadline: new Date(data.deadline).toISOString(),
-      milestones: data.milestones,
     };
 
     try {
       await updateProject({ id, ...payload }).unwrap();
-      toast.success("Project baseline updated successfully!");
+      toast.success("Project updated successfully!");
       setIsEditModalOpen(false);
       refetch();
     } catch (err: any) {
@@ -61,21 +58,23 @@ export default function ProjectDetailsPage() {
     );
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <Toaster />
+
       {/* Navigation */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-slate-500 hover:text-brand-royal-blue transition-colors"
+        className="flex items-center gap-2 text-slate-400 hover:text-brand-royal-blue transition-colors"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="w-4 h-4" />{" "}
         <span className="text-sm font-semibold">Back to Matrix</span>
       </button>
 
       {/* Hero Section */}
-      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+      <div className="bg-white p-8 rounded-3xl shadow-lg shadow-slate-100">
         <div className="flex justify-between items-start">
           <div className="space-y-2">
-            <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-emerald-100">
+            <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest">
               {project?.status || "ACTIVE"}
             </span>
             <h1 className="text-4xl font-extrabold text-slate-900">
@@ -94,72 +93,128 @@ export default function ProjectDetailsPage() {
         </p>
 
         {/* KPI Section */}
-        <div className="grid grid-cols-4 gap-6 mt-8 pt-8 border-t border-slate-50">
-          {[
-            {
-              label: "Budget",
-              value: `$${project?.budget?.toLocaleString() || "0"}`,
-              icon: DollarSign,
-              color: "text-blue-500",
-            },
-            {
-              label: "Deadline",
-              value: project?.deadline
-                ? new Date(project.deadline).toLocaleDateString()
-                : "N/A",
-              icon: Calendar,
-              color: "text-amber-500",
-            },
-            {
-              label: "Team Size",
-              value: `${(project as any)?.teamSize || 0} Members`,
-              icon: Users,
-              color: "text-purple-500",
-            },
-            {
-              label: "Completion",
-              value: `${(project as any)?.progress || 0}%`,
-              icon: BarChart3,
-              color: "text-emerald-500",
-            },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-4">
-              <div className={`p-3 rounded-2xl bg-slate-50 ${item.color}`}>
-                {" "}
-                <item.icon className="w-6 h-6" />{" "}
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  {item.label}
-                </p>
-                <p className="font-bold text-slate-900">{item.value}</p>
-              </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-slate-50">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-blue-50 text-blue-500">
+              <DollarSign className="w-6 h-6" />
             </div>
-          ))}
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Budget
+              </p>
+              <p className="font-bold text-slate-900 text-sm">
+                ${project?.budget?.toLocaleString() || "0"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-amber-50 text-amber-500">
+              <Calendar className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Deadline
+              </p>
+              <p className="font-bold text-slate-900 text-sm">
+                {project?.deadline
+                  ? new Date(project.deadline).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "N/A"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-purple-50 text-purple-500">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Team Size
+              </p>
+              <p className="font-bold text-slate-900 text-sm">
+                {project?.members?.length || 0} Members
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600">
+              <BarChart3 className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                Total Tasks
+              </p>
+              <p className="font-bold text-slate-900 text-sm">
+                {project?.tasks?.length || 0} Tasks
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Main Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
-          <h3 className="font-bold text-lg mb-6 text-slate-900">
-            Strategic Milestones
-          </h3>
-          <MilestoneList milestones={project?.milestones || []} />
-        </div>
-        <div className="bg-slate-900 text-white rounded-3xl p-8 flex flex-col justify-between">
-          <div>
-            <h3 className="font-bold text-lg mb-2">Manager Controls</h3>
-            <p className="text-slate-400 text-sm mb-6">
-              Modify project constraints.
-            </p>
+        <div className="lg:col-span-2 space-y-8">
+          {/* Milestones */}
+          <div className="bg-white rounded-3xl p-8 shadow-lg shadow-slate-100">
+            <h3 className="font-bold text-lg mb-6 text-slate-900">
+              Strategic Milestones
+            </h3>
+            <MilestoneList milestones={project?.milestones || []} />
           </div>
-          <button
-            onClick={() => setIsEditModalOpen(true)}
-            className="w-full py-4 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-all"
-          >
-            Update Baseline
-          </button>
+
+          {/* Tasks */}
+          <div className="bg-white rounded-3xl p-8 shadow-lg shadow-slate-100">
+            <h3 className="font-bold text-lg mb-6 text-slate-900">
+              Current Tasks
+            </h3>
+            <div className="space-y-4">
+              {project?.tasks?.map((task: any) => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl"
+                >
+                  <div className="flex items-center gap-3">
+                    {task.status === "COMPLETED" ? (
+                      <CheckCircle2 className="text-emerald-500 w-5 h-5" />
+                    ) : (
+                      <Clock className="text-amber-500 w-5 h-5" />
+                    )}
+                    <span className="font-semibold text-sm text-slate-700">
+                      {task.title}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold bg-white px-3 py-1 rounded-full text-slate-500">
+                    {task.priority}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Col: Team */}
+        <div className="bg-slate-900 rounded-3xl p-8 shadow-xl shadow-slate-300">
+          <h3 className="font-bold text-lg text-white mb-6">Team Members</h3>
+          <div className="space-y-4">
+            {project?.members?.map((m: any) => (
+              <div
+                key={m.userId}
+                className="flex items-center gap-3 bg-slate-800 p-3 rounded-2xl"
+              >
+                <div className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center font-bold text-white text-xs">
+                  {m.user.name.substring(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-bold text-sm text-white">{m.user.name}</p>
+                  <p className="text-[10px] text-slate-400">{m.user.email}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
