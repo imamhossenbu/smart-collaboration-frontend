@@ -2,7 +2,6 @@
 import { Project } from "@/types";
 import { baseApi } from "./baseApi";
 
-
 export const dashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getProjects: builder.query<Project[], void>({
@@ -44,6 +43,7 @@ export const dashboardApi = baseApi.injectEndpoints({
       providesTags: ["Dashboard"],
     }),
   }),
+  overrideExisting: true, // এরর সমাধানের জন্য এটি আবশ্যক
 });
 
 export const {
@@ -55,4 +55,3 @@ export const {
   useGetDashboardInsightsQuery,
   useGetRecentActivitiesQuery,
 } = dashboardApi;
-

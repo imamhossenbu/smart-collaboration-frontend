@@ -1,13 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// services/userApi.ts
 import { baseApi } from "./baseApi";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getUsers: builder.query<any[], void>({
+    getAllUsers: builder.query<any[], void>({
       query: () => "/users",
-      providesTags: ["Project"],
+    }),
+    updateUserRole: builder.mutation({
+      // নিশ্চিত করুন নাম একই আছে
+      query: ({ id, role }) => ({
+        url: `/users/${id}/role`,
+        method: "PATCH",
+        body: { role },
+      }),
     }),
   }),
 });
 
-export const { useGetUsersQuery } = userApi;
+// এই এক্সপোর্ট লাইনটি ঠিক আছে কি না দেখুন:
+export const { useGetAllUsersQuery, useUpdateUserRoleMutation } = userApi;
